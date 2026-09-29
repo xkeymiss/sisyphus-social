@@ -1,0 +1,280 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ profile.user.name }} ({{ profile.user.handle }}) — Sisyphus Social{% endblock %}
+
+{% block content %}
+<div class="profile-page-wrapper">
+    <div class="profile-page-container">
+        <!-- Üst Gezinme & Geri Dön -->
+        <div class="profile-page-top-bar">
+            <a href="/sosyal" class="profile-back-link">
+                <span style="font-size:16px;">←</span>
+                <span>Sosyal Akışa Dön</span>
+            </a>
+            <div class="profile-brand-text">SISYPHUS SOCIAL</div>
+        </div>
+
+        <!-- Ana Profil Başlık Kartı (Hero) -->
+        <div class="profile-card">
+            <div class="profile-header-banner">
+                <div class="profile-avatar-giant">
+                    {{ profile.user.name[0].upper() if profile.user.name else 'U' }}
+                </div>
+                <div class="profile-hero-details">
+                    <div class="profile-hero-title-row">
+                        <h2>{{ profile.user.name }}</h2>
+                        <div class="profile-badge-pill">
+                            {{ profile.user.badge or 'Trader' }}
+                        </div>
+                    </div>
+                    <div class="profile-hero-meta">
+                        <span class="profile-handle">{{ profile.user.handle }}</span>
+                        <span class="meta-dot">•</span>
+                        <span class="profile-email-text">{{ profile.user.email }}</span>
+                    </div>
+                    <p class="profile-bio-text">{{ profile.user.bio }}</p>
+                </div>
+
+                <!-- Profil Aksiyon Butonu (Takip Et / Şifre Değiştir) -->
+                <div class="profile-hero-actions">
+                    {% if profile.is_self %}
+                        <button class="btn btn-secondary btn-open-pwd-modal" id="btn-open-change-password">
+                            🔒 Şifre Değiştir
+                        </button>
+                    {% else %}
+                        <button class="btn {% if profile.is_following %}btn-following{% else %}btn-follow{% endif %}" 
+                                id="btn-toggle-follow-profile" 
+                                data-handle="{{ profile.user.handle }}">
+                            {% if profile.is_following %}✓ Takip Ediliyor{% else %}+ Takip Et{% endif %}
+                        </button>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- İstatistik & Metrik Matrisi -->
+            <div class="profile-stats-matrix">
+                <div class="profile-stat-box">
+                    <span class="stat-box-label">👥 Takipçi</span>
+                    <span class="stat-box-val" id="val-followers-count">{{ profile.stats.followers_count }}</span>
+                </div>
+                <div class="profile-stat-box">
+                    <span class="stat-box-label">🔗 Takip Edilen</span>
+                    <span class="stat-box-val">{{ profile.stats.following_count }}</span>
+                </div>
+                <div class="profile-stat-box">
+                    <span class="stat-box-label">📊 Toplam İşlem</span>
+                    <span class="stat-box-val">{{ profile.stats.total_trades }}</span>
+                </div>
+                <div class="profile-stat-box">
+                    <span class="stat-box-label">🎯 Kazanma Oranı</span>
+                    <span class="stat-box-val" style="color:var(--color-green);">%{{ profile.stats.win_rate }}</span>
+                </div>
+                <div class="profile-stat-box">
+                    <span class="stat-box-label">📈 Ortalama Kâr</span>
+                    <span class="stat-box-val {% if profile.stats.avg_pnl >= 0 %}val-positive{% else %}val-negative{% endif %}">
+                        {% if profile.stats.avg_pnl >= 0 %}+{% endif %}%{{ profile.stats.avg_pnl }}
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <!-- İşlem Geçmişi & Sinyaller Bölümü -->
+        <div class="profile-trades-section">
+            <div class="profile-section-header">
+                <div class="section-header-title">
+                    <span class="pulse-dot-cyan"></span>
+                    <h3>KULLANICI İŞLEM GEÇMİŞİ & SİNYALLERİ</h3>
+                </div>
+                <!-- Filtreleme Butonları (Tümü - Aktif Pozisyonlar - Emirler - Kapananlar) -->
+                <div class="profile-filter-tabs">
+                    <button class="profile-tab-btn active" data-filter="all">Tümü ({{ profile.stats.total_trades }})</button>
+                    <button class="profile-tab-btn" data-filter="active">🟢 Aktif Pozisyonlar ({{ profile.stats.active_trades_count }})</button>
+                    <button class="profile-tab-btn" data-filter="pending">⏳ Emirler ({{ profile.stats.pending_trades_count }})</button>
+                    <button class="profile-tab-btn" data-filter="completed">🔒 Kapananlar ({{ profile.stats.completed_trades_count }})</button>
+                </div>
+            </div>
+
+            <!-- İşlem Kartları Listesi -->
+            <div class="profile-trades-feed" id="profile-trades-container">
+                {% if profile.trades %}
+                    {% for t in profile.trades %}
+                        {% set is_pending = t.status == 'PENDING' %}
+                        {% set is_closed = t.status in ['TP_HIT', 'CLOSED', 'SL_HIT'] or (t.close_price and t.close_price > 0 and not is_pending) %}
+                        {% set card_status = 'pending' if is_pending else ('completed' if is_closed else 'active') %}
+                        {% set close_val = t.close_price or t.target_tp or t.entry_price %}
+                        {% set pnl_val = t.raw_pnl_pct or 0.0 %}
+                        {% set pnl_sign = '+' if pnl_val >= 0 else '' %}
+                        {% set pnl_color = 'var(--color-green)' if pnl_val >= 0 else 'var(--color-red)' %}
+                        {% set side_class = 'badge-long' if t.side == 'LONG' else 'badge-short' %}
+
+                        <div class="trade-post-card profile-trade-item" data-status="{{ card_status }}" data-id="{{ t.id }}" style="margin-bottom:14px;">
+                            <!-- Kart Üst Başlık: Profil Resmi, İsim, @kullanıcı adı, Zaman -->
+                            <div class="trade-card-header">
+                                <div class="user-meta-left">
+                                    <div class="user-avatar-circle">
+                                        {{ (t.trader_name or profile.user.name or 'U')[0].upper() }}
+                                    </div>
+                                    <div class="user-info-row">
+                                        <strong class="user-display-name">{{ t.trader_name or profile.user.name }}</strong>
+                                        <span class="user-handle-tag">{{ t.trader_handle or profile.user.handle }}</span>
+                                        <span class="user-time-dot">•</span>
+                                        <span class="user-time-text">{{ t.created_display or t.created_at or 'Bugün' }}</span>
+                                    </div>
+                                </div>
+
+                                {% if profile.is_self %}
+                                    <a href="/sosyal" class="btn-manage-trade" style="text-decoration:none; display:inline-flex; align-items:center; gap:5px;" title="Sosyal akışında düzenle">
+                                        ⚙️ Düzenle
+                                    </a>
+                                {% endif %}
+                            </div>
+
+                            <!-- Pozisyon Detay Kutusu -->
+                            <div class="position-details-box">
+                                <div class="pos-box-top">
+                                    <div style="display:flex; align-items:center; gap:8px;">
+                                        <span class="trade-side-pill {{ side_class }}">{{ t.side }} {{ t.leverage or '20x' }}</span>
+                                        <strong class="trade-symbol-text">{{ t.symbol }}</strong>
+                                        <span class="badge-timeframe">{{ t.timeframe or '15m' }}</span>
+                                    </div>
+                                    <span class="pos-status-pill {{ 'status-pending' if is_pending else ('status-tp' if t.status == 'TP_HIT' else ('status-closed' if t.status in ['CLOSED', 'SL_HIT'] else 'status-active')) }}">
+                                        {{ t.status_label or ('⏳ Bekleyen Emir' if is_pending else ('🎯 TP Alındı' if t.status == 'TP_HIT' else ('🛑 Kapatıldı' if t.status in ['CLOSED', 'SL_HIT'] else '🟢 Aktif Pozisyon'))) }}
+                                    </span>
+                                </div>
+
+                                <!-- Seviyeler & Detaylar -->
+                                {% if is_pending %}
+                                    <div class="pos-grid-levels">
+                                        <div class="level-item">
+                                            <span class="level-lbl">Hedef Giriş Fiyatı</span>
+                                            <span class="level-val" style="color:#facc15; font-weight:700;">${{ (t.entry_price or 0.0) | format_crypto_price }}</span>
+                                        </div>
+                                        <div class="level-item">
+                                            <span class="level-lbl" style="color:var(--color-green);">Hedef (TP)</span>
+                                            <span class="level-val" style="color:var(--color-green);">{% if t.target_tp and t.target_tp > 0 %}${{ t.target_tp | format_crypto_price }}{% else %}—{% endif %}</span>
+                                        </div>
+                                        <div class="level-item">
+                                            <span class="level-lbl" style="color:var(--color-red);">Stop (SL)</span>
+                                            <span class="level-val" style="color:var(--color-red);">{% if t.stop_loss and t.stop_loss > 0 %}${{ t.stop_loss | format_crypto_price }}{% else %}—{% endif %}</span>
+                                        </div>
+                                    </div>
+                                    <div style="margin-top:8px; font-size:11.5px; color:var(--text-secondary); display:flex; justify-content:space-between; align-items:center;">
+                                        <span>Emir Türü: <strong style="color:#facc15;">Limit Giriş Emri</strong></span>
+                                        <span class="badge-timeframe" style="font-size:10px;">{{ t.timeframe or '15m' }}</span>
+                                    </div>
+                                {% elif is_closed %}
+                                    <div class="pos-grid-levels">
+                                        <div class="level-item">
+                                            <span class="level-lbl">Giriş</span>
+                                            <span class="level-val">${{ (t.entry_price or 0.0) | format_crypto_price }}</span>
+                                        </div>
+                                        <div class="level-item">
+                                            <span class="level-lbl" style="color:#38bdf8;">Kapanış Fiyatı</span>
+                                            <span class="level-val" style="color:#38bdf8; font-weight:700;">${{ close_val | format_crypto_price }}</span>
+                                        </div>
+                                        <div class="level-item">
+                                            <span class="level-lbl" style="color:{{ pnl_color }};">Net Kâr / Zarar</span>
+                                            <span class="level-val" style="color:{{ pnl_color }}; font-weight:800;">{{ pnl_sign }}{{ "{:,.2f}".format(pnl_val) }}%</span>
+                                        </div>
+                                    </div>
+                                    <div style="margin-top:8px; font-size:11.5px; color:var(--text-secondary); display:flex; justify-content:space-between; align-items:center;">
+                                        <span>Strateji: <strong style="color:#93c5fd;">{{ t.strategy_name or 'Otomatik Sisyphus' }}</strong></span>
+                                        <span class="badge-timeframe" style="font-size:10px;">{{ t.timeframe or '15m' }}</span>
+                                    </div>
+                                {% else %}
+                                    <div class="pos-grid-levels">
+                                        <div class="level-item">
+                                            <span class="level-lbl">Giriş</span>
+                                            <span class="level-val">${{ (t.entry_price or 0.0) | format_crypto_price }}</span>
+                                        </div>
+                                        {% if (t.strategy_name and t.strategy_name != 'Manuel İşlem') or (not t.target_tp and not t.stop_loss) %}
+                                            <div class="level-item">
+                                                <span class="level-lbl" style="color:#60a5fa;">Zaman Dilimi</span>
+                                                <span class="level-val" style="color:#93c5fd; font-weight:700;">{{ t.timeframe or '15m' }}</span>
+                                            </div>
+                                            <div class="level-item">
+                                                <span class="level-lbl" style="color:#38bdf8;">Strateji</span>
+                                                <span class="level-val" style="color:#38bdf8; font-weight:700; font-size:12.5px;">{{ t.strategy_name or 'Otomatik Bot' }}</span>
+                                            </div>
+                                        {% else %}
+                                            <div class="level-item">
+                                                <span class="level-lbl" style="color:var(--color-green);">Hedef (TP)</span>
+                                                <span class="level-val" style="color:var(--color-green);">${{ (t.target_tp or 0.0) | format_crypto_price }}</span>
+                                            </div>
+                                            <div class="level-item">
+                                                <span class="level-lbl" style="color:var(--color-red);">Stop (SL)</span>
+                                                <span class="level-val" style="color:var(--color-red);">${{ (t.stop_loss or 0.0) | format_crypto_price }}</span>
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                {% endif %}
+
+                                {% if t.notes %}
+                                    <div style="margin-top:10px; font-size:12px; color:var(--text-muted); line-height:1.4; border-top:1px solid rgba(255,255,255,0.05); padding-top:8px;">
+                                        {{ t.notes }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="profile-no-trades-box">
+                        <div class="no-trades-icon">📭</div>
+                        <h4>Henüz Paylaşılmış Bir İşlem Bulunmuyor</h4>
+                        <p>{{ profile.user.name }} kullanıcısı henüz sistemde bir işlem paylaşmadı.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ŞİFRE DEĞİŞTİRME MODALI (Yalnızca Kendi Profilinde) -->
+{% if profile.is_self %}
+<div class="modal-overlay" id="change-password-modal" style="display:none;">
+    <div class="modal-card" style="max-width:440px;">
+        <div class="modal-header">
+            <h3 style="font-size:15px; font-weight:700; color:var(--text-primary);">Şifre Değiştir</h3>
+            <button class="btn-modal-close" id="btn-close-pwd-modal">✕</button>
+        </div>
+
+        <div class="modal-body" style="padding:20px;">
+            <div id="pwd-alert" style="display:none; padding:10px 14px; border-radius:6px; font-size:12.5px; margin-bottom:16px;"></div>
+
+            <form id="form-change-password" onsubmit="return false;">
+                <div class="form-group" style="margin-bottom:14px;">
+                    <label class="form-label" for="input-old-pwd">Mevcut (Eski) Şifre</label>
+                    <div class="password-input-wrapper">
+                        <input type="password" id="input-old-pwd" class="filter-input auth-input" placeholder="Mevcut şifreniz" required>
+                        <button type="button" class="btn-toggle-password" data-target="input-old-pwd">👁️</button>
+                    </div>
+                </div>
+
+                <div class="form-group" style="margin-bottom:14px;">
+                    <label class="form-label" for="input-new-pwd">Yeni Şifre (En az 6 karakter)</label>
+                    <div class="password-input-wrapper">
+                        <input type="password" id="input-new-pwd" class="filter-input auth-input" placeholder="Yeni güvenli şifreniz" required>
+                        <button type="button" class="btn-toggle-password" data-target="input-new-pwd">👁️</button>
+                    </div>
+                </div>
+
+                <div class="form-group" style="margin-bottom:20px;">
+                    <label class="form-label" for="input-confirm-pwd">Yeni Şifre (Tekrar)</label>
+                    <div class="password-input-wrapper">
+                        <input type="password" id="input-confirm-pwd" class="filter-input auth-input" placeholder="Yeni şifrenizi doğrulayın" required>
+                        <button type="button" class="btn-toggle-password" data-target="input-confirm-pwd">👁️</button>
+                    </div>
+                </div>
+
+                <div class="modal-footer" style="padding:0; display:flex; justify-content:flex-end; gap:10px;">
+                    <button type="button" class="btn btn-secondary" id="btn-cancel-pwd">İptal</button>
+                    <button type="submit" class="btn btn-primary" id="btn-submit-pwd">Şifreyi Güncelle</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<script src="{{ url_for('static', filename='js/profile.js') }}"></script>
+{% endblock %}

@@ -1,0 +1,162 @@
+{% extends 'base.html' %}
+
+{% block title %}Sisyphus Bot Yönetici Paneli{% endblock %}
+
+{% block content %}
+<div class="bot-page-wrapper">
+    <div class="bot-page-container">
+        <!-- 1. ÜST GEZİNME & BAŞLIK BARI -->
+        <div class="bot-top-bar">
+            <div style="display:flex; align-items:center; gap:16px;">
+                <a href="/" class="profile-back-link">
+                    <span>←</span>
+                    <span>Terminale Dön</span>
+                </a>
+                <div class="bot-header-title">
+                    <h2>SISYPHUS BOT</h2>
+                    <span class="bot-header-subtitle">Binance Vadeli Parite, Zaman Dilimi & Strateji Yöneticisi</span>
+                </div>
+            </div>
+
+            <div class="bot-live-status-pill" id="bot-status-pill">
+                <span class="status-indicator-dot" id="status-dot"></span>
+                <span id="status-text">Yükleniyor...</span>
+            </div>
+        </div>
+
+        <!-- 2. ANA KONTROL & METRİK KARTI -->
+        <div class="bot-control-card">
+            <div class="bot-control-header">
+                <div class="bot-action-buttons">
+                    <button class="btn-bot-toggle btn-bot-start" id="btn-toggle-bot">
+                        <span id="bot-toggle-icon">▶</span>
+                        <span id="bot-toggle-label">Botu Başlat</span>
+                    </button>
+                    <button class="btn btn-secondary" id="btn-quick-test-signal" title="Test Sinyali Oluştur ve Sosyalde Paylaş">
+                        ⚡ Anlık Test Sinyali Gönder
+                    </button>
+                </div>
+                <div class="bot-last-scan-info">
+                    <span>Son Tarama:</span>
+                    <strong id="stat-last-scan">--:--:--</strong>
+                </div>
+            </div>
+
+            <div class="bot-metrics-grid">
+                <div class="bot-metric-box">
+                    <span class="bot-metric-lbl">Seçili Pariteler</span>
+                    <span class="bot-metric-val" id="stat-coins-count">0 Coin</span>
+                </div>
+                <div class="bot-metric-box">
+                    <span class="bot-metric-lbl">Aktif Kural Eşleşmesi</span>
+                    <span class="bot-metric-val" id="stat-rules-count" style="color:#38bdf8;">0 Kural</span>
+                </div>
+                <div class="bot-metric-box">
+                    <span class="bot-metric-lbl">Otomatik Kaldıraç</span>
+                    <span class="bot-metric-val" style="color:#60a5fa;">20x Vadeli Sabit</span>
+                </div>
+                <div class="bot-metric-box">
+                    <span class="bot-metric-lbl">Aktif Pozisyonlar</span>
+                    <span class="bot-metric-val" id="stat-active-trades" style="color:var(--color-green);">0</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3. COIN SEÇİCİ VE ZAMAN DİLİMİ / STRATEJİ MATRİSİ -->
+        <div class="bot-config-grid-layout">
+            <!-- SOL PANEL: BİNANCE PARİTE SEÇİCİ (250+ COİN) -->
+            <div class="bot-panel-card" style="flex:1; min-width:300px;">
+                <div class="bot-panel-header">
+                    <div>
+                        <h3 style="font-size:13.5px; font-weight:700; color:var(--text-primary);">1. Binance Vadeli Pariteler (695+ Canlı Parite)</h3>
+                        <p style="font-size:11px; color:var(--text-secondary); margin-top:2px;">Binance USDT vadeli piyasasındaki tüm coinler listelenmektedir.</p>
+                    </div>
+                    <span class="selected-count-badge" id="selected-coins-badge">0 Seçildi</span>
+                </div>
+
+                <div style="padding:12px 16px 8px 16px;">
+                    <div class="coin-search-input-wrapper">
+                        <span style="font-size:13px; color:var(--text-muted);">🔍</span>
+                        <input type="text" id="input-search-coin" placeholder="Parite ara (BTC, ETH, SOL, SUI, PEPE)..." class="coin-search-input">
+                    </div>
+                    <div class="coin-quick-actions">
+                        <button class="btn-chip-action" id="btn-select-top-backtest">⭐ En İyi Backtest Coinleri</button>
+                        <button class="btn-chip-action" id="btn-select-top20">Top 20</button>
+                        <button class="btn-chip-action" id="btn-select-all">Tümü</button>
+                        <button class="btn-chip-action" id="btn-clear-all">Temizle</button>
+                    </div>
+                </div>
+
+                <div class="coin-scroll-list" id="coin-scroll-root">
+                    <!-- Dinamik 250+ Coin Listesi -->
+                </div>
+            </div>
+
+            <!-- SAĞ PANEL: SEÇİLİ COİNLERİN ZAMAN DİLİMİ VE STRATEJİ MATRİSİ -->
+            <div class="bot-panel-card" style="flex:2; min-width:440px;">
+                <div class="bot-panel-header">
+                    <div>
+                        <h3 style="font-size:13.5px; font-weight:700; color:var(--text-primary);">2. Zaman Dilimi & Strateji Yapılandırması</h3>
+                        <p style="font-size:11px; color:var(--text-secondary); margin-top:2px;">
+                            Her coinin istediğiniz dakikalığını seçip ona özel strateji (A, B, C, D, E) atayabilirsiniz.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="coin-matrix-container" id="coin-matrix-root">
+                    <div class="matrix-empty-placeholder">
+                        <div style="font-size:28px; margin-bottom:8px;">👈</div>
+                        <p>Soldaki listeden coin seçiniz. Seçilen her coinin zaman dilimleri ve stratejileri burada açılacaktır.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 4. CANLI & GEÇMİŞ İŞLEMLER TABLOSU -->
+        <div class="bot-trades-card">
+            <div class="bot-trades-header">
+                <div class="bot-trades-tabs">
+                    <button class="bot-tab-btn active" id="tab-active-trades" data-tab="active">
+                        🟢 Aktif Pozisyonlar (<span id="count-tab-active">0</span>)
+                    </button>
+                    <button class="bot-tab-btn" id="tab-completed-trades" data-tab="completed">
+                        📊 Kapanan İşlemler (<span id="count-tab-completed">0</span>)
+                    </button>
+                </div>
+                <button class="btn btn-xs" id="btn-refresh-trades">🔄 Yenile</button>
+            </div>
+
+            <div class="bot-table-container">
+                <table class="bot-trades-table">
+                    <thead>
+                        <tr>
+                            <th>Parite & Yön</th>
+                            <th>Strateji</th>
+                            <th>Zaman Dilimi</th>
+                            <th>Giriş Fiyatı</th>
+                            <th>Güncel Fiyat</th>
+                            <th>Canlı PnL (20x)</th>
+                            <th>Durum</th>
+                            <th>Saat</th>
+                            <th style="text-align:right;">İşlem</th>
+                        </tr>
+                    </thead>
+                    <tbody id="bot-trades-tbody">
+                        <tr>
+                            <td colspan="9" style="text-align:center; padding:30px; color:var(--text-muted);">
+                                Henüz açık bir bot pozisyonu bulunmuyor. Botu başlattığınızda sinyaller burada listelenecektir.
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block app_scripts %}{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/bot.js') }}"></script>
+{% endblock %}

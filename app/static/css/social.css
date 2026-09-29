@@ -1,0 +1,443 @@
+/* ==========================================================================
+   Sisyphus Social — Sade & Minimalist İşlem Paylaşım & Yönetim Stilleri
+   ========================================================================== */
+
+.social-container {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 16px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+/* Üst Kontrol & Sekme Çubuğu */
+.social-top-actions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background-color: var(--bg-card);
+    border: 1px solid var(--border-main);
+    border-radius: 10px;
+    padding: 10px 14px;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.social-filter-tabs {
+    display: flex;
+    align-items: center;
+    background-color: var(--bg-input);
+    border: 1px solid var(--border-light);
+    border-radius: 8px;
+    padding: 3px;
+    gap: 4px;
+}
+
+.social-tab-btn {
+    padding: 6px 14px;
+    border-radius: 6px;
+    border: none;
+    background: transparent;
+    color: var(--text-secondary);
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.social-tab-btn.active {
+    background-color: #1e293b;
+    color: #38bdf8;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.3);
+}
+
+.social-tab-btn:hover:not(.active) {
+    color: var(--text-primary);
+}
+
+.btn-share-new-trade {
+    background: var(--color-blue-gradient);
+    color: #ffffff;
+    border: none;
+    border-radius: 8px;
+    padding: 8px 16px;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.btn-share-new-trade:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 14px rgba(59, 130, 246, 0.4);
+}
+
+/* ==================== İŞLEM KARTI (TRADE CARD) ==================== */
+.trade-card {
+    background-color: var(--bg-card);
+    border: 1px solid var(--border-main);
+    border-radius: 12px;
+    padding: 14px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    transition: border-color 0.2s ease;
+}
+
+.trade-card:hover {
+    border-color: var(--border-light);
+}
+
+.trade-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.trader-profile-inline {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.trader-avatar-circle {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 13px;
+    color: #38bdf8;
+    border: 1px solid var(--border-light);
+}
+
+.trader-meta h4 {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.trader-meta span {
+    font-size: 11px;
+    color: var(--text-muted);
+}
+
+.btn-follow-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 5px 14px;
+    border-radius: 8px;
+    font-family: inherit;
+    font-size: 11.5px;
+    font-weight: 600;
+    letter-spacing: 0.2px;
+    cursor: pointer;
+    background: linear-gradient(135deg, #2563eb 0%, #0284c7 100%);
+    color: #ffffff !important;
+    border: 1px solid rgba(56, 189, 248, 0.45);
+    box-shadow: 0 2px 8px rgba(37, 99, 235, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.15);
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    user-select: none;
+}
+
+.btn-follow-toggle:hover {
+    background: linear-gradient(135deg, #1d4ed8 0%, #0369a1 100%);
+    box-shadow: 0 4px 14px rgba(37, 99, 235, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.25);
+    border-color: rgba(56, 189, 248, 0.7);
+    transform: translateY(-1px);
+}
+
+.btn-follow-toggle:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 4px rgba(37, 99, 235, 0.2);
+}
+
+.btn-follow-toggle.following {
+    background: rgba(16, 185, 129, 0.12) !important;
+    color: #34d399 !important;
+    border: 1px solid rgba(52, 211, 153, 0.4) !important;
+    box-shadow: 0 2px 8px rgba(16, 185, 129, 0.12);
+}
+
+.btn-follow-toggle.following:hover {
+    background: rgba(239, 68, 68, 0.14) !important;
+    color: #f87171 !important;
+    border-color: rgba(239, 68, 68, 0.45) !important;
+    box-shadow: 0 2px 10px rgba(239, 68, 68, 0.2);
+}
+
+.btn-manage-trade {
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 11.5px;
+    font-weight: 700;
+    cursor: pointer;
+    border: 1px solid rgba(59, 130, 246, 0.4);
+    background-color: rgba(59, 130, 246, 0.12);
+    color: #60a5fa;
+    transition: all 0.15s ease;
+}
+
+.btn-manage-trade:hover {
+    background-color: rgba(59, 130, 246, 0.25);
+    border-color: var(--color-blue);
+}
+
+/* Pozisyon Detay Kutusu */
+.position-details-box {
+    background-color: var(--bg-surface);
+    border: 1px solid var(--border-main);
+    border-radius: 8px;
+    padding: 10px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.pos-box-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.pos-side-badge {
+    padding: 2px 7px;
+    border-radius: 4px;
+    font-weight: 800;
+    font-size: 11px;
+    font-family: var(--font-mono);
+}
+
+.pos-side-long {
+    background: rgba(52, 211, 153, 0.15);
+    color: var(--color-green);
+    border: 1px solid rgba(52, 211, 153, 0.3);
+}
+
+.pos-side-short {
+    background: rgba(248, 113, 113, 0.15);
+    color: var(--color-red);
+    border: 1px solid rgba(248, 113, 113, 0.3);
+}
+
+.pos-status-pill {
+    font-size: 11px;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 10px;
+    background-color: var(--bg-input);
+    border: 1px solid var(--border-main);
+}
+
+.pos-status-pill.status-pending {
+    background-color: rgba(234, 179, 8, 0.15);
+    color: #facc15;
+    border-color: rgba(234, 179, 8, 0.3);
+}
+
+.pos-status-pill.status-tp {
+    background-color: rgba(52, 211, 153, 0.18);
+    color: var(--color-green);
+    border-color: rgba(52, 211, 153, 0.4);
+    font-weight: 700;
+}
+
+.pos-status-pill.status-sl {
+    background-color: rgba(248, 113, 113, 0.18);
+    color: var(--color-red);
+    border-color: rgba(248, 113, 113, 0.4);
+    font-weight: 700;
+}
+
+.pos-status-pill.status-closed {
+    background-color: rgba(148, 163, 184, 0.15);
+    color: #94a3b8;
+    border-color: rgba(148, 163, 184, 0.3);
+}
+
+/* 3 Seviyeli Temiz Fiyat Tablosu (Giriş, TP, SL) */
+.pos-grid-levels {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    background-color: var(--bg-card);
+    padding: 8px 12px;
+    border-radius: 6px;
+    border: 1px solid var(--border-main);
+}
+
+.level-item {
+    display: flex;
+    flex-direction: column;
+}
+
+.level-lbl {
+    font-size: 10px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+}
+
+.level-val {
+    font-size: 12.5px;
+    font-weight: 700;
+    font-family: var(--font-mono);
+    color: var(--text-primary);
+    margin-top: 1px;
+}
+
+/* İşlem Kartı Alt Eylemler */
+.trade-card-footer {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    padding-top: 4px;
+}
+
+.card-action-group {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.btn-card-action {
+    background: transparent;
+    border: none;
+    color: var(--text-secondary);
+    font-size: 12px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    transition: color 0.15s ease;
+}
+
+.btn-card-action:hover {
+    color: var(--text-primary);
+}
+
+.btn-card-action.liked {
+    color: var(--color-red);
+}
+
+/* ==================== İŞLEM PAYLAŞMA & DÜZENLEME MODALI ==================== */
+.status-toggle-group {
+    display: flex;
+    background-color: var(--bg-surface);
+    border: 1px solid var(--border-light);
+    border-radius: 8px;
+    padding: 3px;
+    gap: 4px;
+}
+
+.status-toggle-btn {
+    flex: 1;
+    padding: 7px 10px;
+    border-radius: 6px;
+    border: none;
+    background: transparent;
+    color: var(--text-secondary);
+    font-weight: 600;
+    font-size: 11.5px;
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.15s ease;
+}
+
+.status-toggle-btn.active {
+    background-color: #1e293b;
+    color: var(--text-primary);
+    box-shadow: 0 1px 4px rgba(0,0,0,0.3);
+}
+
+.share-trade-modal-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.form-label {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-secondary);
+}
+
+.side-toggle-group {
+    display: flex;
+    gap: 8px;
+}
+
+.side-toggle-btn {
+    flex: 1;
+    padding: 8px;
+    border-radius: 6px;
+    border: 1px solid var(--border-light);
+    background-color: var(--bg-surface);
+    color: var(--text-secondary);
+    font-weight: 700;
+    font-size: 12px;
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.15s ease;
+}
+
+.side-toggle-btn.active-long {
+    background: rgba(52, 211, 153, 0.18);
+    border-color: var(--color-green);
+    color: var(--color-green);
+}
+
+.side-toggle-btn.active-short {
+    background: rgba(248, 113, 113, 0.18);
+    border-color: var(--color-red);
+    color: var(--color-red);
+}
+
+/* Pozisyon Durum / Kısmi Kapanış Seçenek Izgarası */
+.quick-status-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 6px;
+}
+
+.btn-status-option {
+    padding: 8px 4px;
+    font-size: 11px;
+    font-weight: 600;
+    border-radius: 6px;
+    border: 1px solid var(--border-light);
+    background-color: var(--bg-surface);
+    color: var(--text-secondary);
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.15s ease;
+}
+
+.btn-status-option:hover {
+    border-color: var(--color-blue);
+    color: var(--text-primary);
+}
+
+.btn-status-option.active {
+    background: #1e293b;
+    border-color: #38bdf8;
+    color: #38bdf8;
+    font-weight: 700;
+}

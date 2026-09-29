@@ -1,0 +1,80 @@
+{% extends 'base.html' %}
+
+{% block title %}Giriş Yap — Sisyphus Social{% endblock %}
+
+{% block content %}
+<div class="auth-page-wrapper">
+    <!-- Ortalanmış FinTech Giriş Kartı -->
+    <div class="auth-card-container">
+        <!-- Logo & Başlık -->
+        <div class="auth-brand-badge">
+            <h2>SISYPHUS SOCIAL</h2>
+        </div>
+
+        <div class="auth-card">
+            <!-- Sekmeli Geçiş (Giriş Yap / Kayıt Ol) -->
+            <div class="auth-segmented-nav">
+                <a href="{{ url_for('auth.login') }}" class="auth-nav-tab active">Giriş Yap</a>
+                <a href="{{ url_for('auth.register') }}" class="auth-nav-tab">Kayıt Ol</a>
+            </div>
+
+            <!-- Flash Uyarı Mesajları -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="auth-alert alert-{{ category }}">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
+            <!-- Giriş Formu -->
+            <form action="/auth/login" method="POST" class="auth-form">
+                <div class="form-group">
+                    <label class="form-label" for="input-identity">Kullanıcı Adı veya E-Posta</label>
+                    <input type="text" id="input-identity" name="email" class="filter-input auth-input" placeholder="Kullanıcı adı veya e-posta" value="{{ identity or '' }}" required autofocus>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="input-password">Şifre</label>
+                    <div class="password-input-wrapper">
+                        <input type="password" id="input-password" name="password" class="filter-input auth-input" placeholder="" required>
+                        <button type="button" class="btn-toggle-password" data-target="input-password" title="Şifreyi Göster / Gizle">👁️</button>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-auth-submit">
+                    Giriş Yap
+                </button>
+            </form>
+
+            <div class="auth-card-bottom-info">
+                <span>Hesabınız yok mu?</span>
+                <a href="{{ url_for('auth.register') }}" class="auth-link">Yeni Hesap Oluştur →</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block app_scripts %}{% endblock %}
+
+{% block extra_js %}
+<script>
+document.querySelectorAll('.btn-toggle-password').forEach(btn => {
+    btn.addEventListener('click', () => {
+        const targetId = btn.getAttribute('data-target');
+        const input = document.getElementById(targetId);
+        if (!input) return;
+        if (input.type === 'password') {
+            input.type = 'text';
+            btn.textContent = '🙈';
+        } else {
+            input.type = 'password';
+            btn.textContent = '👁️';
+        }
+    });
+});
+</script>
+{% endblock %}

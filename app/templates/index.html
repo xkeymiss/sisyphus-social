@@ -1,0 +1,567 @@
+{% extends 'base.html' %}
+
+{% block title %}Sisyphus Social{% endblock %}
+
+{% block content %}
+<!-- ÜST GEZİNTİ ÇUBUĞU (MASAÜSTÜ: SISYPHUS SOCIAL + ORTA PİLL + SAĞ PROFİL) -->
+<header class="top-nav-bar">
+    <div class="nav-left-brand" style="cursor:pointer;" id="brand-home-link">
+        <span>SISYPHUS SOCIAL</span>
+    </div>
+
+    <!-- ORTA OVAL NAVİGASYON KAPSÜLÜ -->
+    <div class="nav-center-pill">
+        <button class="nav-pill-btn active" id="btn-nav-summary" data-route="/">İndikatör Özeti</button>
+        <button class="nav-pill-btn" id="btn-nav-full-table" data-route="/islemsonuclari">Tüm Sonuçlar</button>
+        <button class="nav-pill-btn" id="btn-nav-social" data-route="/sosyal">Sosyal İşlemler</button>
+    </div>
+
+    <!-- SAĞ YUVARLAK PROFİL & HESAP BUTONU + DROPDOWN MENÜ -->
+    <div class="nav-right-account" style="position:relative;">
+        <button class="btn-avatar-circle" id="btn-open-account" title="Hesap Menüsü">
+            <span class="user-avatar-initial" id="nav-avatar-letter">{{ current_user.name[0].upper() if current_user.is_authenticated and current_user.name else 'U' }}</span>
+        </button>
+
+        <!-- AŞAĞI DOĞRU KAYAN AÇILIR MENÜ (DROPDOWN) -->
+        <div class="account-dropdown-menu" id="account-dropdown" style="display:none;">
+            <div class="dropdown-user-header">
+                <div class="dropdown-avatar-small" id="dropdown-avatar-letter">{{ current_user.name[0].upper() if current_user.is_authenticated and current_user.name else 'U' }}</div>
+                <div class="dropdown-user-info">
+                    <strong id="dropdown-user-name">{{ current_user.name }}</strong>
+                    <span id="dropdown-user-handle">{{ current_user.handle }}</span>
+                </div>
+            </div>
+            <div class="dropdown-badge-row">
+                <span class="badge-role" id="dropdown-user-badge">{{ current_user.badge or '👑 Sistem Yöneticisi & Trader' }}</span>
+            </div>
+
+            <div class="dropdown-divider"></div>
+
+            <a href="/profil" class="dropdown-item" id="dropdown-link-profile">
+                <span class="dropdown-item-icon">👤</span>
+                <span>Hesap Bilgilerim</span>
+            </a>
+
+            <div id="dropdown-admin-section" style="{{ 'display:block;' if current_user.role == 'admin' else 'display:none;' }}">
+                <div class="dropdown-section-label">Yönetici Kontrolleri</div>
+                <button class="dropdown-item" id="btn-open-user-management" style="width:100%; border:none; background:transparent; text-align:left; cursor:pointer;">
+                    <span class="dropdown-item-icon">👥</span>
+                    <span>Üyeleri Düzenle</span>
+                </button>
+                <a href="/sisyphusbot" class="dropdown-item" id="dropdown-link-bot">
+                    <span class="dropdown-item-icon">🤖</span>
+                    <span>Sisyphus Bot Paneli</span>
+                </a>
+                <label class="dropdown-item" style="cursor:pointer; margin:0;">
+                    <span class="dropdown-item-icon">📂</span>
+                    <span>JSON Dosyası Yükle</span>
+                    <input type="file" id="input-json-file" accept=".json" style="display:none;">
+                </label>
+                <button class="dropdown-item" id="btn-export-json" style="width:100%; border:none; background:transparent; text-align:left; cursor:pointer;">
+                    <span class="dropdown-item-icon">💾</span>
+                    <span>JSON İndir</span>
+                </button>
+            </div>
+
+            <div class="dropdown-divider"></div>
+
+            <button class="dropdown-item dropdown-logout-btn" id="btn-logout-action" style="width:100%; border:none; background:transparent; text-align:left; cursor:pointer;">
+                <span class="dropdown-item-icon">🚪</span>
+                <span>Oturumu Kapat</span>
+            </button>
+        </div>
+    </div>
+</header>
+
+<!-- View 1: Indicator Summary -->
+<section id="summary-view" class="app-view-section">
+    <!-- 1. BİLGİLENDİRME BANNERI -->
+    <div class="info-notice-banner">
+        <span class="info-notice-icon">💡</span>
+        <div>
+            <strong>Sisyphus Social Bilgilendirmesi:</strong> Bu sıralama ve analizler, tüm kripto vadeli pariteleri üzerinde <strong>20x kaldıraç</strong> ve <strong>$1,000 başlangıç sermayesi</strong> baz alınarak çoklu zaman dilimli (MTF) backtest simülasyonu ile hesaplanmıştır.
+        </div>
+    </div>
+
+    <!-- 2. ÖZET: EN İYİ & EN KÖTÜ 10 -->
+    <div class="summary-section-container">
+        <div class="summary-header-row">
+            <div class="summary-title-badge">
+                <span class="bullet"></span>
+                <span>Özet — En İyi & En Kötü 10 Performans</span>
+            </div>
+
+            <!-- Özet Strateji Seçici Sekmeleri -->
+            <div class="summary-strategy-pills">
+                <button class="sum-pill-btn active" data-sum-strat="A">Strateji A</button>
+                <button class="sum-pill-btn" data-sum-strat="B">Strateji B</button>
+                <button class="sum-pill-btn" data-sum-strat="C">Strateji C</button>
+                <button class="sum-pill-btn" data-sum-strat="D">Strateji D</button>
+                <button class="sum-pill-btn" data-sum-strat="E">Strateji E</button>
+            </div>
+        </div>
+
+        <!-- İki Kolonlu Özet Kartları -->
+        <div class="summary-cards-grid">
+            <!-- Sol Kart: En Çok Kâr -->
+            <div class="summary-box-card">
+                <div class="summary-box-header profit-header">
+                    <span>🏆</span>
+                    <span id="summary-profit-title">Strateji A — En Çok Kâr</span>
+                </div>
+                <div class="summary-items-list" id="summary-profit-list">
+                    <!-- Dinamik doldurulur -->
+                </div>
+            </div>
+
+            <!-- Sağ Kart: En Çok Zarar -->
+            <div class="summary-box-card">
+                <div class="summary-box-header loss-header">
+                    <span>📉</span>
+                    <span id="summary-loss-title">Strateji A — En Çok Zarar</span>
+                </div>
+                <div class="summary-items-list" id="summary-loss-list">
+                    <!-- Dinamik doldurulur -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 3. TÜM SONUÇLARA GEÇİŞ BUTONU -->
+    <div class="cta-all-backtest-banner" id="btn-go-to-islemsonuclari" title="Tüm İşlem Sonuçları Sekmesine Git">
+        <div class="cta-btn-inner">
+            <div class="cta-btn-icon">📊</div>
+            <div>
+                <div>Tüm Backtest ve Tarama Sonuçlarını İncele</div>
+                <div style="font-size:11.5px; font-weight:normal; color:var(--text-secondary); margin-top:2px;">
+                    17,000+ taranmış coin sonucunda filtreleme yapmak, sıralamak ve tüm stratejileri incelemek için tıklayınız.
+                </div>
+            </div>
+        </div>
+        <div style="font-size:16px; color:var(--color-blue); font-weight:700;">İncele →</div>
+    </div>
+</section>
+
+<!-- View 2: Scan Results -->
+<section id="full-table-view" class="app-view-section" style="display:none;">
+    <!-- Üst Başlık & Geri Dön Çubuğu -->
+    <div style="padding: 16px 24px 0 24px; display:flex; justify-content:space-between; align-items:center;">
+        <div>
+            <h2 style="font-size:16px; font-weight:800; color:var(--text-primary);">Tüm Backtest & Tarama Sonuçları</h2>
+            <p style="font-size:11.5px; color:var(--text-secondary); margin-top:2px;">17,000+ Gerçek taranmış coin sonuçları ve detaylı filtreler</p>
+        </div>
+        <button class="btn" id="btn-back-to-summary" style="padding:6px 14px; font-size:12px; background:var(--bg-card); border:1px solid var(--border-light); color:var(--text-secondary); border-radius:6px; cursor:pointer;">
+            ← Özete Geri Dön
+        </button>
+    </div>
+
+    <!-- Strateji Sekmeleri (A, B, C, D, E) -->
+    <div class="strategy-tabs-container">
+        <div class="strat-card-tab active" data-strategy="A">
+            <div class="strat-tab-title">Strateji A</div>
+            <div class="strat-tab-sub">Bollinger/POC</div>
+        </div>
+        <div class="strat-card-tab" data-strategy="B">
+            <div class="strat-tab-title">Strateji B</div>
+            <div class="strat-tab-sub">Aks. SL/TP</div>
+        </div>
+        <div class="strat-card-tab" data-strategy="C">
+            <div class="strat-tab-title">Strateji C</div>
+            <div class="strat-tab-sub">Rahat Sisyphus</div>
+        </div>
+        <div class="strat-card-tab" data-strategy="D">
+            <div class="strat-tab-title">Strateji D</div>
+            <div class="strat-tab-sub">Momentum EMA</div>
+        </div>
+        <div class="strat-card-tab" data-strategy="E">
+            <div class="strat-tab-title">Strateji E</div>
+            <div class="strat-tab-sub">Mean Reversion</div>
+        </div>
+    </div>
+
+    <!-- Filtre Çubuğu -->
+    <div class="filter-bar-container">
+        <div class="filters-group">
+            <div class="filter-item">
+                <label for="filter-min-trades">Min İşlem Sayısı:</label>
+                <input type="number" id="filter-min-trades" class="filter-input" value="3" min="0">
+            </div>
+
+            <div class="filter-item">
+                <label for="filter-min-winrate">Min Win Rate (%):</label>
+                <input type="number" id="filter-min-winrate" class="filter-input" value="0" min="0" max="100">
+            </div>
+
+            <div class="filter-item">
+                <label for="filter-timeframe">Zaman Dilimi:</label>
+                <select id="filter-timeframe" class="filter-select">
+                    <option value="all" selected>Tümü</option>
+                    <option value="5m">5m</option>
+                    <option value="15m">15m</option>
+                    <option value="1h">1h</option>
+                    <option value="2h">2h</option>
+                    <option value="4h">4h</option>
+                    <option value="1d">1d</option>
+                </select>
+            </div>
+
+            <div class="filter-item">
+                <span>Sonuç:</span>
+                <span class="result-badge" id="results-count-badge">Yükleniyor...</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- MASAÜSTÜ İÇİN 11 SÜTUNLU TAM TABLO (>768px) -->
+    <div class="table-main-wrapper">
+        <div class="table-card">
+            <table class="scan-table">
+                <thead>
+                    <tr>
+                        <th data-sort="index">#</th>
+                        <th data-sort="symbol">COİN ↕</th>
+                        <th data-sort="timeframe">ZAMAN DİLİMİ ↕</th>
+                        <th data-sort="total_pnl_pct">TOPLAM PNL% ↕</th>
+                        <th data-sort="win_rate">WİN RATE ↕</th>
+                        <th data-sort="total_trades">İŞLEM ↕</th>
+                        <th data-sort="profit_factor">PROFİT FACTOR ↕</th>
+                        <th data-sort="max_drawdown">MAX DD% ↕</th>
+                        <th data-sort="best_trade">EN İYİ ↕</th>
+                        <th data-sort="worst_trade">EN KÖTÜ ↕</th>
+                        <th data-sort="final_capital">SON SERMAYE ↕</th>
+                    </tr>
+                </thead>
+                <tbody id="scan-results-tbody">
+                    <!-- Dinamik doldurulur -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- MOBİL İÇİN KART LİSTESİ GÖRÜNÜMÜ (<768px) -->
+    <div class="mobile-cards-wrapper">
+        <div id="scan-results-mobile-cards">
+            <!-- app.js renderMobileCards ile doldurulur -->
+        </div>
+    </div>
+</section>
+
+<!-- View 3: Social Feed -->
+<section id="social-view" class="app-view-section" style="display:none;">
+    <div class="social-main-layout">
+        <!-- SOL SÜTUN: SOSYAL AKIŞ -->
+        <div class="social-feed-column">
+            <div class="social-top-actions">
+                <div class="social-filter-tabs">
+                    <button class="social-tab-btn active" data-tab="latest">⚡ En Son İşlemler</button>
+                    <button class="social-tab-btn" data-tab="following">👥 Takip Ettiklerim</button>
+                    <button class="social-tab-btn" data-tab="my_trades">👤 Paylaştığım İşlemler</button>
+                </div>
+
+                <button class="btn-share-new-trade" id="btn-open-share-modal">
+                    ➕ Yeni İşlem Paylaş
+                </button>
+            </div>
+
+            <!-- KULLANICI / TRADER ARAMA ÇUBUĞU -->
+            <div class="social-search-bar-wrapper">
+                <div class="social-search-input-group">
+                    <span class="social-search-icon">🔍</span>
+                    <input type="text" id="social-trader-search-input" class="social-search-input" placeholder="Kullanıcı veya trader ara..." autocomplete="off">
+                    <button type="button" id="btn-clear-trader-search" class="btn-clear-search" style="display:none;">✕</button>
+                </div>
+                <!-- Canlı Arama Sonuç Paneli -->
+                <div id="social-trader-search-dropdown" class="social-search-dropdown" style="display:none;">
+                    <div id="social-search-results-list" class="search-results-list"></div>
+                </div>
+            </div>
+
+            <div id="social-feed-root" style="display:flex; flex-direction:column; gap:12px;"></div>
+        </div>
+
+        <!-- SAĞ SÜTUN: LİDERLİK TABLOSU (BUGÜN / BU HAFTA / TÜM ZAMANLAR) -->
+        <aside class="social-leaderboard-column">
+            <div class="leaderboard-card">
+                <div class="leaderboard-header">
+                    <div class="leaderboard-title-group">
+                        <span class="leaderboard-trophy-icon">🏆</span>
+                        <div>
+                            <h3 class="leaderboard-heading">En İyi Kapanan İşlemler</h3>
+                            <p class="leaderboard-subheading">Kaldıraçsız Net Fiyat Kâr Sıralaması</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Periyot Filtre Hapları -->
+                <div class="leaderboard-period-pills">
+                    <button class="leader-period-btn active" data-period="today">Bugün</button>
+                    <button class="leader-period-btn" data-period="week">Bu Hafta</button>
+                    <button class="leader-period-btn" data-period="all">Tüm Zamanlar</button>
+                </div>
+
+                <!-- Sıralama Listesi -->
+                <div class="leaderboard-list" id="leaderboard-list-root">
+                    <div class="leaderboard-loading">Yükleniyor...</div>
+                </div>
+            </div>
+        </aside>
+    </div>
+</section>
+
+<!-- Mobile Bottom Nav -->
+<nav class="mobile-bottom-nav">
+    <button class="mobile-nav-item active" id="btn-mobile-nav-summary" data-route="/">
+        <span class="mobile-nav-icon">⚡</span>
+        <span class="mobile-nav-label">Özet</span>
+    </button>
+    <button class="mobile-nav-item" id="btn-mobile-nav-full-table" data-route="/islemsonuclari">
+        <span class="mobile-nav-icon">📊</span>
+        <span class="mobile-nav-label">Sonuçlar</span>
+    </button>
+    <button class="mobile-nav-item" id="btn-mobile-nav-social" data-route="/sosyal">
+        <span class="mobile-nav-icon">💬</span>
+        <span class="mobile-nav-label">Sosyal</span>
+    </button>
+    <a href="/profil" class="mobile-nav-item" id="btn-mobile-nav-account" style="text-decoration:none;">
+        <span class="mobile-nav-icon">👤</span>
+        <span class="mobile-nav-label" id="mobile-nav-account-label">Profil</span>
+    </a>
+</nav>
+
+<!-- COİN İŞLEM GEÇMİŞİ & GRAFİK DETAY MODALI -->
+<div class="modal-overlay" id="coin-detail-modal">
+    <div class="modal-card">
+        <div class="bottom-sheet-handle"></div>
+        <div class="modal-header">
+            <div>
+                <h3 id="modal-coin-title" style="font-size:15px; color:var(--text-primary);">BARD/USDT:USDT (2h — Strateji A)</h3>
+                <span id="modal-coin-subtitle" style="font-size:11px; color:var(--text-secondary);">Gerçek İşlem Kayıtları ve Özkaynak Eğrisi</span>
+            </div>
+            <button class="btn-modal-close" id="btn-close-detail-modal">✕</button>
+        </div>
+
+        <div class="modal-body">
+            <div class="chart-box-fixed">
+                <div style="font-size:12px; font-weight:700; margin-bottom:8px; color:var(--text-primary);">Kümülatif Bakiye Eğrisi (Equity Curve)</div>
+                <div class="chart-canvas-container">
+                    <canvas id="modal-equity-canvas"></canvas>
+                </div>
+            </div>
+
+            <div class="ledger-box-fixed">
+                <div style="font-size:12px; font-weight:700; margin-bottom:8px; color:var(--text-primary);">Gerçekleşen İşlem Kayıtları (Ledger)</div>
+                <div class="ledger-table-scroll">
+                    <table class="scan-table" style="font-size:12px;">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>YÖN</th>
+                                <th>GİRİŞ</th>
+                                <th>ÇIKIŞ</th>
+                                <th>PNL %</th>
+                                <th>PNL $</th>
+                                <th>GİRİŞ ZAMANI</th>
+                                <th>ÇIKIŞ ZAMANI</th>
+                                <th>ÇIKIŞ NEDENİ</th>
+                            </tr>
+                        </thead>
+                        <tbody id="modal-trades-tbody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- YENİ İŞLEM PAYLAŞMA MODALI -->
+<div class="modal-overlay" id="share-trade-modal">
+    <div class="modal-card" style="max-width:420px;">
+        <div class="bottom-sheet-handle"></div>
+        <div class="modal-header">
+            <h3 style="font-size:14px; font-weight:700; color:var(--text-primary);">Yeni İşlem Paylaş</h3>
+            <button class="btn-modal-close" id="btn-close-share-modal">✕</button>
+        </div>
+
+        <div class="modal-body" style="gap:12px;">
+            <input type="hidden" id="input-trade-side" value="LONG">
+            <input type="hidden" id="input-trade-status" value="ACTIVE">
+
+            <!-- İşlem Tipi: Aktif Pozisyon mu, Bekleyen Limit Emir mi? -->
+            <div class="status-toggle-group">
+                <button type="button" class="status-toggle-btn active" id="toggle-status-active">🟢 Aktif Pozisyon</button>
+                <button type="button" class="status-toggle-btn" id="toggle-status-pending">⏳ Bekleyen Emir</button>
+            </div>
+
+            <!-- Yön Seçimi (LONG / SHORT) -->
+            <div class="side-toggle-group">
+                <button type="button" class="side-toggle-btn active-long" id="toggle-side-long">LONG</button>
+                <button type="button" class="side-toggle-btn" id="toggle-side-short">SHORT</button>
+            </div>
+
+            <!-- İşlem Çifti ve Kaldıraç -->
+            <div class="share-trade-modal-grid">
+                <div class="form-group">
+                    <label class="form-label">İşlem Çifti</label>
+                    <input type="text" class="filter-input" id="share-symbol" value="BTC/USDT" style="width:100%; text-align:left; font-weight:700;">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Kaldıraç (x)</label>
+                    <input type="number" class="filter-input" id="share-leverage" value="10" min="1" max="125" style="width:100%;">
+                </div>
+            </div>
+
+            <!-- Giriş Fiyatı -->
+            <div class="form-group">
+                <label class="form-label">Giriş Fiyatı ($)</label>
+                <input type="number" step="any" class="filter-input" id="share-entry" placeholder="Örn: 96450.0" style="width:100%; text-align:left;">
+            </div>
+
+            <!-- TP ve SL Seviyeleri -->
+            <div class="share-trade-modal-grid">
+                <div class="form-group">
+                    <label class="form-label" style="color:var(--color-green);">Kâr Al (TP) ($)</label>
+                    <input type="number" step="any" class="filter-input" id="share-tp" placeholder="Örn: 99800.0" style="width:100%; text-align:left;">
+                </div>
+                <div class="form-group">
+                    <label class="form-label" style="color:var(--color-red);">Zarar Durdur (SL) ($)</label>
+                    <input type="number" step="any" class="filter-input" id="share-sl" placeholder="Örn: 95200.0" style="width:100%; text-align:left;">
+                </div>
+            </div>
+
+            <button class="btn btn-primary" id="btn-submit-share-trade" style="width:100%; padding:12px; font-weight:700; font-size:13px; margin-top:4px;">
+                Paylaş
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- İŞLEM DÜZENLEME & YÖNETME MODALI -->
+<div class="modal-overlay" id="edit-trade-modal">
+    <div class="modal-card" style="max-width:440px;">
+        <div class="bottom-sheet-handle"></div>
+        <div class="modal-header">
+            <div>
+                <h3 style="font-size:14px; font-weight:700; color:var(--text-primary);">İşlemi Yönet & Güncelle</h3>
+                <span id="edit-modal-subtitle" style="font-size:11px; color:var(--text-secondary);">BTC/USDT (LONG 10x)</span>
+            </div>
+            <button class="btn-modal-close" id="btn-close-edit-modal">✕</button>
+        </div>
+
+        <div class="modal-body" style="gap:14px;">
+            <input type="hidden" id="edit-trade-id" value="">
+
+            <div class="form-group">
+                <label class="form-label">Pozisyon Durumu</label>
+                <div class="quick-status-grid">
+                    <button type="button" class="btn-status-option" data-status="ACTIVE">🟢 Aktif</button>
+                    <button type="button" class="btn-status-option" data-status="PENDING">⏳ Emir</button>
+                    <button type="button" class="btn-status-option" data-status="TP_HIT">🎯 TP Oldu</button>
+                    <button type="button" class="btn-status-option" data-status="SL_HIT">🛑 Stop Oldu</button>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Kısmi Kâr Al / Pozisyonu Kapat</label>
+                <div class="quick-status-grid">
+                    <button type="button" class="btn-status-option" data-status="PARTIAL_25">%25 Kapat</button>
+                    <button type="button" class="btn-status-option" data-status="PARTIAL_50">%50 Kapat</button>
+                    <button type="button" class="btn-status-option" data-status="PARTIAL_75">%75 Kapat</button>
+                    <button type="button" class="btn-status-option" data-status="CLOSED">🔒 Tam Kapat</button>
+                </div>
+            </div>
+
+            <div class="form-group" id="edit-close-price-group">
+                <label class="form-label" style="color:#38bdf8;">Kapanış Fiyatı ($) (Kapatırken veya TP/SL Alırken)</label>
+                <input type="number" step="any" class="filter-input" id="edit-close-price" placeholder="Örn: 90000.0" style="width:100%; text-align:left; font-weight:700;">
+            </div>
+
+            <div class="share-trade-modal-grid">
+                <div class="form-group">
+                    <label class="form-label" style="color:var(--color-green);">Kâr Al (TP) ($)</label>
+                    <input type="number" step="any" class="filter-input" id="edit-tp" placeholder="0.00" style="width:100%; text-align:left;">
+                </div>
+                <div class="form-group">
+                    <label class="form-label" style="color:var(--color-red);">Zarar Durdur (SL) ($)</label>
+                    <input type="number" step="any" class="filter-input" id="edit-sl" placeholder="0.00" style="width:100%; text-align:left;">
+                </div>
+            </div>
+
+            <div style="display:flex; gap:8px; margin-top:4px;">
+                <button class="btn btn-primary" id="btn-save-edit-trade" style="flex:2; padding:11px; font-weight:700; font-size:13px;">
+                    Değişiklikleri Kaydet
+                </button>
+                <button class="btn" id="btn-delete-trade" style="flex:1; padding:11px; background:rgba(248,113,113,0.15); border:1px solid rgba(248,113,113,0.3); color:var(--color-red); font-weight:700; font-size:12px; border-radius:6px; cursor:pointer;">
+                    Sil
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- User Management Modal -->
+<div class="modal-overlay" id="user-management-modal" style="display:none;">
+    <div class="modal-card" style="max-width:960px; width:96%; max-height:88vh; display:flex; flex-direction:column;">
+        <div class="modal-header">
+            <div style="display:flex; align-items:center; gap:10px;">
+                <span style="font-size:20px;">👥</span>
+                <div>
+                    <h3 style="font-size:16px; font-weight:800; color:var(--text-primary); margin:0;">Üye Yönetimi & Yetkilendirme</h3>
+                    <p style="font-size:11.5px; color:var(--text-muted); margin:0;">Kayıtlı üyeleri görüntüleyin, rol (Admin/Üye), rozet ve hesap durumlarını düzenleyin.</p>
+                </div>
+            </div>
+            <button class="btn-modal-close" id="btn-close-user-management">✕</button>
+        </div>
+
+        <div class="modal-body" style="padding:16px 20px; overflow-y:auto; flex:1; display:flex; flex-direction:column; gap:14px;">
+            <!-- Hızlı Kullanıcı Filtre Arama -->
+            <div style="display:flex; align-items:center; gap:10px; background:rgba(15,23,42,0.8); border:1px solid rgba(255,255,255,0.08); border-radius:8px; padding:8px 14px;">
+                <span style="font-size:14px; opacity:0.7;">🔍</span>
+                <input type="text" id="input-filter-admin-users" placeholder="Üye adı, kullanıcı adı veya e-posta ile anında filtrele..." style="flex:1; background:transparent; border:none; color:var(--text-primary); font-size:13px; outline:none;">
+                <span id="badge-admin-users-count" style="font-size:11px; background:rgba(56,189,248,0.15); color:#38bdf8; padding:3px 10px; border-radius:12px; font-weight:700;">Yükleniyor...</span>
+            </div>
+
+            <!-- Kullanıcılar Tablosu (Yatay Kaydırma ve Net Butonlar) -->
+            <div class="table-card" style="max-height:480px; overflow-y:auto; overflow-x:auto; border:1px solid rgba(255,255,255,0.08); border-radius:8px;">
+                <table class="scan-table" style="width:100%; min-width:780px; font-size:12px;">
+                    <thead>
+                        <tr>
+                            <th style="width:40px;">#</th>
+                            <th style="min-width:160px;">Üye Bilgisi</th>
+                            <th style="min-width:150px;">E-Posta</th>
+                            <th style="min-width:110px;">Kayıt Tarihi</th>
+                            <th style="min-width:120px;">Üyelik Rolü</th>
+                            <th style="min-width:150px;">Özel Rozet</th>
+                            <th style="min-width:100px;">Durum</th>
+                            <th style="text-align:right; min-width:140px; position:sticky; right:0; background:rgba(15,23,42,0.95);">İşlemler</th>
+                        </tr>
+                    </thead>
+                    <tbody id="admin-users-table-tbody">
+                        <tr>
+                            <td colspan="8" style="text-align:center; padding:30px; color:var(--text-muted);">
+                                Kullanıcı listesi yükleniyor...
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="modal-footer" style="padding:14px 20px; border-top:1px solid rgba(255,255,255,0.08); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+            <span style="font-size:12px; color:#38bdf8;">💡 İster satırdaki <strong>"💾 Kaydet"</strong> butonuna, isterseniz tümünü tek seferde kaydetmek için sağdaki butona basabilirsiniz.</span>
+            <div style="display:flex; gap:10px; align-items:center;">
+                <button type="button" class="btn btn-primary" id="btn-save-all-admin-users" style="padding:8px 18px; font-weight:700; font-size:12.5px; background:linear-gradient(135deg, #10b981, #059669); border:none; border-radius:6px; cursor:pointer;">
+                    💾 Değişiklikleri Kaydet
+                </button>
+                <button type="button" class="btn btn-secondary" id="btn-close-user-management-footer" style="padding:8px 16px; font-size:12.5px;">Kapat</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    window.__CURRENT_USER__ = {{ (current_user.to_dict() | tojson) if (current_user and current_user.is_authenticated) else 'null' }};
+</script>
+{% endblock %}
